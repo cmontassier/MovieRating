@@ -1,0 +1,46 @@
+version: "3.9"
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+    command: >
+      sh -c "python manage.py migrate && gunicorn movierating_api.wsgi:application --bind 0.0.0.0:8000"
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: films
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend-test:
+    build: ./backend
+    depends_on:
+      - db
+    environment:
+      SECRET_KEY: "RANDOM_TEST_SECRET_KEY"
+    command: >
+      sh -c "python manage.py makemigrations && python manage.py migrate && python manage.py test movie"
+    volumes:
+      - ./backend:/app
+
+volumes:
+  postgres_data:
