@@ -6,11 +6,15 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
+      - staticfiles:/app/staticfiles
     depends_on:
       - db
+    environment:
+      SECRET_KEY: "MY_SECRET_KEY"
     command: >
-      sh -c "python manage.py migrate && gunicorn movierating_api.wsgi:application --bind 0.0.0.0:8000"
-
+      sh -c "python manage.py migrate && 
+             python manage.py collectstatic --noinput && 
+             python manage.py runserver 0.0.0.0:8000"
   frontend:
     build: ./frontend
     ports:
@@ -44,3 +48,4 @@ services:
 
 volumes:
   postgres_data:
+  staticfiles:
