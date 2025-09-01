@@ -9,8 +9,8 @@ WORKDIR /app
  
 # Set environment variables to optimize Python
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1 
- 
+ENV PYTHONUNBUFFERED=1
+
 # Upgrade pip and install dependencies
 RUN pip install --upgrade pip 
  
@@ -33,10 +33,13 @@ COPY --from=builder /usr/local/bin/ /usr/local/bin/
  
 # Set the working directory
 WORKDIR /app
- 
+
 # Copy application code
 COPY --chown=appuser:appuser . .
- 
+
+RUN mkdir -p /app/staticfiles && chown appuser:appuser /app/staticfiles
+
+
 # Set environment variables to optimize Python
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1 
@@ -48,4 +51,4 @@ USER appuser
 EXPOSE 8000 
  
 # Start the application using Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "movierating_api.wsgi:application"]
+CMD ["gunicorn", "--bind", "localhost:8000", "--workers", "3", "movierating_api.wsgi:application"]
