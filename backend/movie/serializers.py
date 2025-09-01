@@ -14,7 +14,14 @@ class ReviewSerializer(serializers.ModelSerializer):
 class MovieSerializer(serializers.ModelSerializer):
     actors = ActorSerializer(many=True, read_only=True)
     reviews = ReviewSerializer(many=True, read_only=True)
+    average_grade = serializers.SerializerMethodField()
 
     class Meta:
         model = Movie
-        fields = ['id', 'title', 'description', 'actors', 'reviews']
+        fields = ['id', 'title', 'description', 'actors', 'reviews', 'average_grade']
+
+    def get_average_grade(self, obj):
+        reviews = obj.reviews.all()
+        if reviews:
+            return sum([r.grade for r in reviews]) / reviews.count()
+        return None
